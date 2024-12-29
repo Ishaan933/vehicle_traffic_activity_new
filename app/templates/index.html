@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic Prediction</title>
+</head>
+<body>
+    <h1>Traffic Prediction</h1>
+    <form method="POST">
+        <label for="site">Select Site:</label>
+        <select name="site">
+            {% for site in sites %}
+                <option value="{{ site }}">{{ site }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="date">Select Date:</label>
+        <input type="date" name="date" required>
+        <br>
+        <label for="time_of_day">Select Time of Day:</label>
+        <select name="time_of_day">
+            <option value="Morning">Morning</option>
+            <option value="Afternoon">Afternoon</option>
+            <option value="Evening">Evening</option>
+            <option value="Night">Night</option>
+        </select>
+        <br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction is not none %}
+        <h2>Prediction Result</h2>
+        <p>Predicted Total Traffic: {{ prediction }}</p>
+    {% endif %}
+</body>
+</html>

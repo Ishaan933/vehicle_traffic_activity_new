@@ -10,7 +10,7 @@ app = Flask(__name__)
 MODEL_PATH = os.path.join(os.getcwd(), 'models/vehicle_traffic_prediction_model.pkl')
 SCALER_PATH = os.path.join(os.getcwd(), 'models/vehicle_traffic_scaler_total.pkl')
 HISTORICAL_DATA_PATH = os.path.join(os.getcwd(), 'data/filtered_date_traffic_activity_data.parquet')
-FUTURE_DATA_PATH = os.path.join(os.getcwd(), 'data/future_traffic_forecast.parquet')
+FUTURE_DATA_PATH = os.path.join(os.getcwd(), 'data/future_traffic_forecast.parquet') 
 
 # Load the model and scaler
 rf_model = joblib.load(MODEL_PATH)

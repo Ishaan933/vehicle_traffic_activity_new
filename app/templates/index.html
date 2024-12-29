@@ -6,30 +6,44 @@
 <body>
     <h1>Traffic Prediction</h1>
     <form method="POST">
+        <!-- Site Selection -->
         <label for="site">Select Site:</label>
-        <select name="site">
+        <select name="site" id="site" required>
             {% for site in sites %}
                 <option value="{{ site }}">{{ site }}</option>
             {% endfor %}
         </select>
-        <br>
+        <br><br>
+
+        <!-- Date Selection -->
         <label for="date">Select Date:</label>
-        <input type="date" name="date" required>
-        <br>
+        <input type="date" name="date" id="date" required>
+        <br><br>
+
+        <!-- Time of Day Selection -->
         <label for="time_of_day">Select Time of Day:</label>
-        <select name="time_of_day">
+        <select name="time_of_day" id="time_of_day" required>
             <option value="Morning">Morning</option>
             <option value="Afternoon">Afternoon</option>
             <option value="Evening">Evening</option>
             <option value="Night">Night</option>
         </select>
-        <br>
+        <br><br>
+
+        <!-- Submit Button -->
         <button type="submit">Predict</button>
     </form>
 
+    <!-- Display Prediction Result -->
     {% if prediction is not none %}
         <h2>Prediction Result</h2>
-        <p>Predicted Total Traffic: {{ prediction }}</p>
+        <p>
+            {% if prediction.startswith("No data") %}
+                {{ prediction }}
+            {% else %}
+                Predicted Total Traffic: {{ prediction | round(2) }}
+            {% endif %}
+        </p>
     {% endif %}
 </body>
 </html>

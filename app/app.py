@@ -16,39 +16,47 @@ scaler = joblib.load(SCALER_PATH)
 DATA_PATH = os.path.join(os.getcwd(), 'data/filtered_date_traffic_activity_data.parquet')
 historical_data = pd.read_parquet(DATA_PATH)
 
+# Extract the date from the Timestamp column
+historical_data['Date'] = pd.to_datetime(historical_data['Timestamp']).dt.date
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     prediction = None
     if request.method == 'POST':
         # Get user input
         site = request.form['site']
-        date = request.form['date']
+        date = request.form['date']  # Input date from the form
         time_of_day = request.form['time_of_day']
         
-        # Process user input into feature vector
-        time_mapping = {
-            'Morning': [1, 0, 0, 0],
-            'Afternoon': [0, 1, 0, 0],
-            'Evening': [0, 0, 1, 0],
-            'Night': [0, 0, 0, 1],
-        }
-        time_features = time_mapping[time_of_day]
-
-        # Get forecasted traffic directions for the selected date
-        row = historical_data[historical_data['Date'] == date]
-        if row.empty:
-            prediction = f"No data available for {date}"
+        # Convert the input date to datetime.date format
+        date = pd.to_datetime(date).date()
+        
+        # Filter the data for the selected site and date
+        filtered_data = historical_data[(historical_data['Site'] == site) & (historical_data['Date'] == date)]
+        
+        if filtered_data.empty:
+            prediction = f"No data available for {site} on {date}."
         else:
-            northbound = row['Northbound'].values[0]
-            southbound = row['Southbound'].values[0]
-            eastbound = row['Eastbound'].values[0]
-            westbound = row['Westbound'].values[0]
+            # Aggregate directional traffic for the selected site and date
+            northbound = filtered_data['Northbound'].sum()
+            southbound = filtered_data['Southbound'].sum()
+            eastbound = filtered_data['Eastbound'].sum()
+            westbound = filtered_data['Westbound'].sum()
 
-            # Ensure eastbound and westbound are set to 0 if they are null/zero
-            eastbound = eastbound if eastbound > 0 else 0
-            westbound = westbound if westbound > 0 else 0
+            # Ensure eastbound and westbound are set to 0 if they are NaN
+            eastbound = eastbound if pd.notnull(eastbound) else 0
+            westbound = westbound if pd.notnull(westbound) else 0
 
-            # Create input vector
+            # Process time_of_day into feature vector
+            time_mapping = {
+                'Morning': [1, 0, 0, 0],
+                'Afternoon': [0, 1, 0, 0],
+                'Evening': [0, 0, 1, 0],
+                'Night': [0, 0, 0, 1],
+            }
+            time_features = time_mapping[time_of_day]
+
+            # Prepare the input vector for the model
             input_vector = {
                 'Northbound': [northbound],
                 'Southbound': [southbound],
